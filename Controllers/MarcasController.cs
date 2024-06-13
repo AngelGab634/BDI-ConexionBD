@@ -15,16 +15,16 @@ namespace ConexionEF.Controllers
 
         public IActionResult MarcaAdd()
         {
-            // MarcaProducto entity = new MarcaProducto();
-            // entity.Id = new Guid();
-            // entity.Nombre = "Coca-Cola";
-            // entity.Descripcion = "Marca de grupo FAMSA";
+            MarcaProducto entity = new MarcaProducto();
+            entity.Id = new Guid();
+            entity.Nombre = "Coca-Cola";
+            entity.Descripcion = "Marca de grupo FAMSA";
             
-            // //Esto es para guardar en la base de datos.
-            // _context.MarcasProductos.Add(entity);
-            // _context.SaveChanges();
+            //Esto es para guardar en la base de datos.
+            _context.MarcasProductos.Add(entity);
+            _context.SaveChanges();
 
-            return View();
+            return View("MarcaList");
         }
 
         public IActionResult MarcaList()
@@ -41,21 +41,41 @@ namespace ConexionEF.Controllers
 
             return View(list);
         }
-
+        [HttpGet]
         public IActionResult MarcaEdit(Guid Id)
         {
+             var Marca =_context.MarcasProductos.FirstOrDefault(p=>p.Id==Id);
+            if(Marca == null)
+            {
+                return RedirectToAction("MarcaList");
+            }
 
-            MarcaProducto entity = _context.MarcasProductos
-                .Where(m => m.Id == Id)
-                .FirstOrDefault();
+            var model = new MarcaModel
+            {
+                Id = Marca.Id,
+                Nombre = Marca.Nombre,
+                Descripcion = Marca.Descripcion,
+            };
 
-            entity.Nombre = "Pepsi";
-            entity.Descripcion = "Grupo PEPSICO";
+            return View(model);
+        }
 
-            _context.MarcasProductos.Update(entity);
-            _context.SaveChanges();
+        public IActionResult MarcasEdit(MarcaModel model)
+        {
+              if (ModelState.IsValid)
+            {
+                var Marca = _context.MarcasProductos.FirstOrDefault(p => p.Id == model.Id);
+                if (Marca!=null)
+                {
+                    Marca.Nombre=model.Nombre;
+                    Marca.Descripcion = model.Descripcion;
 
-            return View();
+                    _context.SaveChanges();
+                    return RedirectToAction("MarcaList");
+                }
+            }
+
+            return View(model);
         }
 
         public IActionResult MarcaDelete()
